@@ -11,7 +11,13 @@ export type TaskNature =
   | "other";
 
 export type RoutingModel = "luna" | "terra" | "sol" | "astra";
-export type ReasoningEffort = "low" | "medium" | "high" | "xhigh";
+export type ReasoningEffort =
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh"
+  | "max"
+  | "ultra";
 export type Scope = "unknown" | "small" | "medium" | "large";
 
 export interface TaskMetrics {

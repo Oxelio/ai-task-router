@@ -3,7 +3,7 @@
 Small TypeScript MVP that uses TypeSafe Jev to assess a software-development task and then applies a deterministic routing policy to recommend:
 
 - model: `luna | terra | sol | astra`
-- reasoning effort: `low | medium | high | xhigh`
+- reasoning effort: `low | medium | high | xhigh | max | ultra`
 
 The model names are routing labels in this demo. The project deliberately does **not** call an OpenAI model yet.
 
@@ -64,3 +64,13 @@ npm run typecheck
 5. Low Jev confidence triggers conservative routing and review.
 
 The thresholds are initial heuristics. They are meant to be calibrated later on a dataset of real tasks and outcomes.
+
+## Upper reasoning tiers
+
+The routing policy supports all six reasoning-effort labels:
+
+```text
+low < medium < high < xhigh < max < ultra
+```
+
+`max` and `ultra` are intentionally conservative in the initial policy. They are only selected for combinations of very high complexity, ambiguity, and risk. These thresholds are starter heuristics and should be calibrated from real routing outcomes.

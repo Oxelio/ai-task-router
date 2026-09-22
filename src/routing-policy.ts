@@ -19,6 +19,8 @@ const EFFORT_RANK: Record<ReasoningEffort, number> = {
   medium: 1,
   high: 2,
   xhigh: 3,
+  max: 4,
+  ultra: 5,
 };
 
 function maxModel(a: RoutingModel, b: RoutingModel): RoutingModel {
@@ -126,7 +128,8 @@ export function chooseRoute(
     );
   }
 
-  // Ambiguity mostly increases reasoning effort. Extreme ambiguity can justify Astra.
+  // Ambiguity mostly increases reasoning effort. Extreme ambiguity can justify
+  // the upper reasoning tiers, but max/ultra are reserved for combined signals below.
   if (assessment.ambiguity >= 3.6) {
     effort = maxEffort(effort, "xhigh");
     reasons.push(
@@ -192,14 +195,37 @@ export function chooseRoute(
   }
 
   // Astra is reserved for genuinely difficult combinations, not merely large tasks.
+  // max/ultra are deliberately rare: they require several independent strong signals.
   if (
+    assessment.complexity >= 3.85 &&
+    assessment.ambiguity >= 3.75 &&
+    assessment.risk >= 3.75
+  ) {
+    model = "astra";
+    effort = maxEffort(effort, "ultra");
+    requiresReview = true;
+    reasons.push(
+      "Extreme complexity, ambiguity, and risk: escalate to Astra/ultra plus review.",
+    );
+  } else if (
+    assessment.complexity >= 3.7 &&
+    assessment.ambiguity >= 3.5 &&
+    assessment.risk >= 3.2
+  ) {
+    model = "astra";
+    effort = maxEffort(effort, "max");
+    requiresReview = true;
+    reasons.push(
+      "Very high combined complexity, ambiguity, and risk: escalate to Astra/max plus review.",
+    );
+  } else if (
     assessment.complexity >= 3.6 &&
     (assessment.ambiguity >= 3.2 || assessment.risk >= 3.2)
   ) {
     model = "astra";
-    effort = maxEffort(effort, "high");
+    effort = maxEffort(effort, "xhigh");
     reasons.push(
-      "Combined very high complexity with high ambiguity/risk: escalate to Astra.",
+      "Combined very high complexity with high ambiguity/risk: escalate to Astra/xhigh.",
     );
   }
 
