@@ -6,9 +6,30 @@
       "modelId": "gpt-6-luna",
       "version": "6",
       "tier": "luna",
+      "priority": 0,
       "effortMapping": {
+        "none": "none",
         "low": "low",
-        "medium": "medium"
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
+      }
+    },
+    {
+      "id": "openai-gpt-5.6-luna",
+      "provider": "openai",
+      "modelId": "gpt-5.6-luna",
+      "version": "5.6",
+      "tier": "luna",
+      "priority": 100,
+      "effortMapping": {
+        "none": "none",
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
       }
     },
     {
@@ -17,9 +38,30 @@
       "modelId": "gpt-6.1-terra",
       "version": "6.1",
       "tier": "terra",
+      "priority": 0,
       "effortMapping": {
+        "none": "none",
+        "low": "low",
         "medium": "medium",
-        "high": "high"
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
+      }
+    },
+    {
+      "id": "openai-gpt-5.6-terra",
+      "provider": "openai",
+      "modelId": "gpt-5.6-terra",
+      "version": "5.6",
+      "tier": "terra",
+      "priority": 100,
+      "effortMapping": {
+        "none": "none",
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
       }
     },
     {
@@ -28,10 +70,45 @@
       "modelId": "gpt-6.1-sol",
       "version": "6.1",
       "tier": "sol",
+      "priority": 0,
       "effortMapping": {
+        "low": "low",
         "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "max"
+      }
+    },
+    {
+      "id": "openai-gpt-6-sol",
+      "provider": "openai",
+      "modelId": "gpt-6-sol",
+      "version": "6",
+      "tier": "sol",
+      "priority": 50,
+      "effortMapping": {
+        "none": "none",
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
+      }
+    },
+    {
+      "id": "openai-gpt-5.6-sol",
+      "provider": "openai",
+      "modelId": "gpt-5.6-sol",
+      "version": "5.6",
+      "tier": "sol",
+      "priority": 100,
+      "effortMapping": {
+        "none": "none",
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
       }
     },
     {
@@ -40,9 +117,13 @@
       "modelId": "gpt-6-astra",
       "version": "6",
       "tier": "astra",
+      "priority": 0,
       "effortMapping": {
+        "low": "low",
+        "medium": "medium",
         "high": "high",
-        "xhigh": "xhigh"
+        "xhigh": "xhigh",
+        "max": "max"
       }
     }
   ]

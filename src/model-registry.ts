@@ -4,7 +4,7 @@ import type { ReasoningEffort, RoutingModel } from "./domain.js";
 
 const TIERS: readonly RoutingModel[] = ["luna", "terra", "sol", "astra"];
 const EFFORTS: readonly ReasoningEffort[] = [
-  "low", "medium", "high", "xhigh", "max", "ultra",
+  "none", "low", "medium", "high", "xhigh", "max", "ultra",
 ];
 
 /** The effort map is explicit: an absent key means this model cannot serve that route. */

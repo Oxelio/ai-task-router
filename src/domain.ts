@@ -12,6 +12,7 @@ export type TaskNature =
 
 export type RoutingModel = "luna" | "terra" | "sol" | "astra";
 export type ReasoningEffort =
+  | "none"
   | "low"
   | "medium"
   | "high"

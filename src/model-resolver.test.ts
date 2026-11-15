@@ -22,16 +22,21 @@ test("resolves concrete model and version for each ordinary tier", () => {
 });
 
 test("escalates tier rather than silently lowering the requested effort", () => {
-  const resolved = resolveModelRoute(route("luna", "high"), fixture);
+  const registry = parseModelRegistry({ models: [
+    { id: "luna-only-low", provider: "test", modelId: "luna", version: "1", tier: "luna", effortMapping: { low: "low" } },
+    { id: "terra-high", provider: "test", modelId: "terra", version: "1", tier: "terra", effortMapping: { high: "high" } },
+  ] });
+  const resolved = resolveModelRoute(route("luna", "high"), registry);
   assert.equal(resolved.selectedModel.tier, "terra");
   assert.equal(resolved.providerEffort, "high");
   assert.equal(resolved.tierEscalated, true);
 });
 
-test("fails closed when max or ultra has no explicitly configured mapping", () => {
-  for (const effort of ["max", "ultra"] as const) {
-    assert.throws(() => resolveModelRoute(route("astra", effort), fixture), /No enabled model/);
-  }
+test("resolves documented max reasoning and rejects unsupported ultra", () => {
+  const resolved = resolveModelRoute(route("astra", "max"), fixture);
+  assert.equal(resolved.selectedModel.modelId, "gpt-6-astra");
+  assert.equal(resolved.providerEffort, "max");
+  assert.throws(() => resolveModelRoute(route("astra", "ultra"), fixture), /No enabled model/);
 });
 
 test("respects enabled models and priority within the eligible tier", () => {
@@ -50,4 +55,40 @@ test("rejects duplicate IDs and invalid effort declarations", () => {
   assert.throws(() => parseModelRegistry({ models: [sample, sample] }), /Duplicate model id/);
   assert.throws(() => parseModelRegistry({ models: [{ ...sample, effortMapping: { bogus: "low" } }] }), /unknown effort/);
   assert.throws(() => parseModelRegistry({ models: [{ ...sample, effortMapping: {} }] }), /at least one/);
+});
+
+test("the catalog contains the documented GPT-5.6, GPT-6 and GPT-6.1 families", () => {
+  const withNone = ["none", "low", "medium", "high", "xhigh", "max"];
+  const withoutNone = ["low", "medium", "high", "xhigh", "max"];
+  const expected: Record<string, string[]> = {
+    "gpt-6-luna": withNone,
+    "gpt-5.6-luna": withNone,
+    "gpt-6.1-terra": withNone,
+    "gpt-5.6-terra": withNone,
+    "gpt-6.1-sol": withoutNone,
+    "gpt-6-sol": withNone,
+    "gpt-5.6-sol": withNone,
+    "gpt-6-astra": withoutNone,
+  };
+  assert.equal(fixture.models.length, Object.keys(expected).length);
+  for (const model of fixture.models) {
+    assert.deepEqual(Object.keys(model.effortMapping), expected[model.modelId], model.modelId);
+    for (const [effort, providerEffort] of Object.entries(model.effortMapping)) {
+      assert.equal(providerEffort, effort, model.modelId);
+    }
+  }
+});
+
+test("prefers the current generation and falls back to an older model when required", () => {
+  assert.equal(resolveModelRoute(route("luna", "max"), fixture).selectedModel.modelId, "gpt-6-luna");
+  assert.equal(resolveModelRoute(route("terra", "none"), fixture).selectedModel.modelId, "gpt-6.1-terra");
+  assert.equal(resolveModelRoute(route("sol", "none"), fixture).selectedModel.modelId, "gpt-6-sol");
+  assert.equal(resolveModelRoute(route("sol", "high"), fixture).selectedModel.modelId, "gpt-6.1-sol");
+
+  const olderOnly = parseModelRegistry({
+    models: fixture.models.filter((model) => model.version === "5.6"),
+  });
+  assert.equal(resolveModelRoute(route("luna", "low"), olderOnly).selectedModel.modelId, "gpt-5.6-luna");
+  assert.equal(resolveModelRoute(route("terra", "high"), olderOnly).selectedModel.modelId, "gpt-5.6-terra");
+  assert.equal(resolveModelRoute(route("sol", "max"), olderOnly).selectedModel.modelId, "gpt-5.6-sol");
 });
