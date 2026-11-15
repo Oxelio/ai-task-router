@@ -61,7 +61,7 @@ export interface TaskAssessment {
     ambiguity: Record<string, number>;
   };
 
-  jevModel: string;
+  analyzerModel: string;
   inputTokens: number;
   outputTokens: number;
 }

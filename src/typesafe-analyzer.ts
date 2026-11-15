@@ -5,6 +5,7 @@ import type {
   TaskInput,
   TaskNature,
 } from "./domain.js";
+import type { TaskAnalyzer } from "./task-analyzer.js";
 
 const QUESTIONS = {
   nature: choice(
@@ -71,7 +72,7 @@ function toRecord(value: object): Record<string, number> {
   return Object.fromEntries(Object.entries(value)) as Record<string, number>;
 }
 
-export class JevTaskAnalyzer {
+export class TypeSafeTaskAnalyzer implements TaskAnalyzer {
   private readonly client: TypeSafeClient;
 
   public constructor() {
@@ -131,7 +132,7 @@ export class JevTaskAnalyzer {
         risk: toRecord(risk.probabilities),
         ambiguity: toRecord(ambiguity.probabilities),
       },
-      jevModel: response.model,
+      analyzerModel: response.model,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
     };

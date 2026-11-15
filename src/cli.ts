@@ -1,7 +1,8 @@
 import { existsSync } from "node:fs";
 
 import type { TaskInput, TaskMetrics } from "./domain.js";
-import { JevTaskAnalyzer } from "./jev-analyzer.js";
+import { TypeSafeTaskAnalyzer } from "./typesafe-analyzer.js";
+import type { TaskAnalyzer } from "./task-analyzer.js";
 import { chooseRoute } from "./routing-policy.js";
 import { loadModelRegistry } from "./model-registry.js";
 import { resolveModelRoute } from "./model-resolver.js";
@@ -82,7 +83,7 @@ function parseArguments(args: string[]): TaskInput {
 
 function printHelp(): void {
   console.log(`
-Jev task router demo
+AI Task Router
 
 Usage:
   npm run dev -- "<task>" [options]
@@ -123,7 +124,7 @@ async function main(): Promise<void> {
   }
 
   const input = parseArguments(process.argv.slice(2));
-  const analyzer = new JevTaskAnalyzer();
+  const analyzer: TaskAnalyzer = new TypeSafeTaskAnalyzer();
 
   console.log("\nTask");
   console.log("----");
@@ -137,7 +138,7 @@ async function main(): Promise<void> {
   const route = chooseRoute(input, assessment);
   const resolved = resolveModelRoute(route, loadModelRegistry());
 
-  console.log("\nJev assessment");
+  console.log("\nTask assessment");
   console.log("--------------");
   console.table({
     nature: {
@@ -159,9 +160,9 @@ async function main(): Promise<void> {
   });
 
   console.log(`Overall confidence: ${assessment.confidence.overall.toFixed(3)}`);
-  console.log(`Jev model: ${assessment.jevModel}`);
+  console.log(`Analyzer model: ${assessment.analyzerModel}`);
   console.log(
-    `Jev usage: ${assessment.inputTokens} input tokens / ${assessment.outputTokens} output tokens`,
+    `Analyzer usage: ${assessment.inputTokens} input tokens / ${assessment.outputTokens} output tokens`,
   );
 
   console.log("\nRouting decision");

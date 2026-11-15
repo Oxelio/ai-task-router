@@ -159,7 +159,7 @@ export function chooseRoute(
     );
   }
 
-  // Objective scope should come from code/repository metrics rather than Jev.
+  // Objective scope should come from code/repository metrics rather than the analyzer.
   if (scope === "large") {
     model = maxModel(model, "sol");
     effort = maxEffort(effort, "medium");
@@ -230,20 +230,20 @@ export function chooseRoute(
     );
   }
 
-  // Confidence gate. This is OUR policy, not a TypeSafe-prescribed threshold.
+  // Confidence gate. This is a heuristic; it is not calibrated to each analyzer's confidence semantics.
   if (assessment.confidence.overall < 0.45) {
     model = maxModel(model, "sol");
     effort = maxEffort(effort, "high");
     requiresReview = true;
     reasons.push(
-      `Low Jev confidence (${assessment.confidence.overall.toFixed(2)}): conservative Sol/high fallback plus review.`,
+      `Low analyzer confidence (${assessment.confidence.overall.toFixed(2)}): conservative Sol/high fallback plus review.`,
     );
   } else if (assessment.confidence.overall < 0.65) {
     model = maxModel(model, "terra");
     effort = maxEffort(effort, "medium");
     requiresReview = true;
     reasons.push(
-      `Moderate Jev confidence (${assessment.confidence.overall.toFixed(2)}): no aggressive downgrade; flag for review.`,
+      `Moderate analyzer confidence (${assessment.confidence.overall.toFixed(2)}): no aggressive downgrade; flag for review.`,
     );
   }
 

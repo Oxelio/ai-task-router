@@ -1,5 +1,5 @@
 {
-  "name": "jev-router-demo",
+  "name": "ai-task-router",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/cli.js",
-    "test": "npm run build && node --test dist/*.test.js"
+    "test": "tsc -p tsconfig.json && node --test dist/*.test.js"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "^0.6.0"
@@ -17,5 +17,6 @@
     "@types/node": "^22.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
-  }
+  },
+  "description": "AI-powered task router that analyzes software engineering requests and selects an LLM, model version, and reasoning effort using configurable policies."
 }

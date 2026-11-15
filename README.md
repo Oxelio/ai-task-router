@@ -1,6 +1,8 @@
-# Jev Router Demo
+# AI Task Router
 
-Small TypeScript MVP that uses TypeSafe Jev to assess a software-development task and then applies a deterministic routing policy to recommend:
+AI-powered task router that analyzes software engineering requests and selects an LLM, model version, and reasoning effort using configurable policies.
+
+A TypeScript MVP that assesses a software-development task with a configurable analyzer (TypeSafe Jev or local Kev via an Ollama-compatible API) and then applies a deterministic routing policy to recommend:
 
 - minimum model tier: `luna | terra | sol | astra`
 - concrete provider/model ID and version selected from `models.json`
@@ -11,28 +13,34 @@ The tier names are routing labels, not exact model identifiers. The project reso
 ## Requirements
 
 - Node.js 20+
-- a TypeSafe API key
+- a TypeSafe API key when using the hosted API, or Ollama with Kev for local analysis
 
 ## Install
 
-```bash
-npm install
-```
-
-Or with pnpm:
+This project uses pnpm and commits `pnpm-lock.yaml`. Avoid mixing npm and pnpm in the same `node_modules` directory.
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 ## Configure
 
-Copy `.env.example` to `.env` and set:
+Copy `.env.example` to `.env`. Choose one analysis backend:
 
+Hosted TypeSafe / Jev:
 ```text
-TYPESAFE_API_KEY=...
+TYPESAFE_API_KEY=<your-api-key>
 TYPESAFE_MODEL=jev-latest
 ```
+
+Local Kev / Ollama (tested by the project user on Windows):
+```text
+TYPESAFE_API_KEY=local
+TYPESAFE_BASE_URL=http://127.0.0.1:11434
+TYPESAFE_MODEL=kev:4b-q4_K_M
+```
+
+Keep the Ollama model downloaded locally (`ollama pull kev:4b-q4_K_M`). Environment variables already set in PowerShell can override the file's values depending on the runtime configuration.
 
 ## Execution model registry
 
@@ -46,36 +54,45 @@ Resolution preserves the routing policy's minimum tier and effort. It chooses an
 
 The analyzer is configured separately: `TYPESAFE_MODEL=kev:4b-q4_K_M` selects Kev for task assessment, **not** the OpenAI model that the router recommends.
 
+## Architecture
+
+- `TaskAnalyzer` (`src/task-analyzer.ts`) is the provider-independent analysis contract.
+- `TypeSafeTaskAnalyzer` (`src/typesafe-analyzer.ts`) uses the TypeSafe-compatible SDK for hosted Jev or local Kev; no change to the routing policy is needed when switching between them.
+- `chooseRoute` (`src/routing-policy.ts`) combines analyzer scores, objective metrics, and conservative security rules.
+- `resolveModelRoute` selects an exact model ID and provider effort from `models.json`, without silently weakening the route.
+
+The CLI **only recommends** an execution model: it does not run it. Analyzer confidence handling remains a preliminary, conservative heuristic pending calibration.
+
 ## Run
 
 ```bash
-npm run dev -- "Write a conventional commit for this tiny change" --files=1
+pnpm run dev "Write a conventional commit for this tiny change" --files=1
 ```
 
 ```bash
-npm run dev -- "Review an authentication refactor and identify regressions" --files=10 --modules=3 --auth --permissions
+pnpm run dev "Review an authentication refactor and identify regressions" --files=10 --modules=3 --auth --permissions
 ```
 
 Running without a task uses a built-in example:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ## Type-check
 
 ```bash
-npm run typecheck
-npm test
+pnpm typecheck
+pnpm test
 ```
 
 ## Design
 
 1. Objective metrics are supplied by code/CLI.
-2. Jev independently evaluates task nature, complexity, risk, and ambiguity.
+2. A configured analysis backend evaluates task nature, complexity, risk, and ambiguity.
 3. A deterministic routing policy combines these values.
 4. Hard rules prevent risky tasks from being downgraded.
-5. Low Jev confidence triggers conservative routing and review.
+5. Low analyzer confidence triggers conservative routing and review until calibrated.
 
 The thresholds are initial heuristics. They are meant to be calibrated later on a dataset of real tasks and outcomes.
 
@@ -88,3 +105,12 @@ low < medium < high < xhigh < max < ultra
 ```
 
 `max` and `ultra` are intentionally conservative in the initial policy. They are only selected for combinations of very high complexity, ambiguity, and risk. `ultra` requires a future explicitly modeled execution strategy (such as a separate pro mode with validated semantics), otherwise the resolver will reject it. These thresholds are starter heuristics and should be calibrated from real routing outcomes.
+
+## Migrating an existing Git clone
+
+The GitHub repository has moved from `Oxelio/jev-router` to `Oxelio/ai-task-router`. Update any existing clone's remote URL (the local directory name does not need to change):
+
+```bash
+git remote set-url origin https://github.com/Oxelio/ai-task-router.git
+git pull --ff-only origin main
+```
