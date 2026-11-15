@@ -80,7 +80,7 @@ export function parseModelRegistry(value: unknown): ModelRegistry {
       throw new Error(`${field}.enabled must be a boolean.`);
     }
 
-    const model: ModelDefininition = { id, provider, modelId, version, tier, effortMapping };
+    const model: ModelDefinition = { id, provider, modelId, version, tier, effortMapping };
     if (entry.revision !== undefined) {
       model.revision = requiredString(entry.revision, `${field}.revision`);
     }
