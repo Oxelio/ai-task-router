@@ -3,6 +3,8 @@ import { existsSync } from "node:fs";
 import type { TaskInput, TaskMetrics } from "./domain.js";
 import { JevTaskAnalyzer } from "./jev-analyzer.js";
 import { chooseRoute } from "./routing-policy.js";
+import { loadModelRegistry } from "./model-registry.js";
+import { resolveModelRoute } from "./model-resolver.js";
 
 function loadEnvFile(): void {
   if (!existsSync(".env")) {
@@ -133,6 +135,7 @@ async function main(): Promise<void> {
 
   const assessment = await analyzer.analyze(input);
   const route = chooseRoute(input, assessment);
+  const resolved = resolveModelRoute(route, loadModelRegistry());
 
   console.log("\nJev assessment");
   console.log("--------------");
@@ -163,7 +166,16 @@ async function main(): Promise<void> {
 
   console.log("\nRouting decision");
   console.log("----------------");
-  console.log(`Model:          ${route.model}`);
+  console.log(`Minimum tier:   ${route.model}`);
+  console.log(`Provider:       ${resolved.selectedModel.provider}`);
+  console.log(`Exact model ID: ${resolved.selectedModel.modelId}`);
+  console.log(`Version:        ${resolved.selectedModel.version}`);
+  if (resolved.selectedModel.revision) {
+    console.log(`Revision:       ${resolved.selectedModel.revision}`);
+  }
+  console.log(`Provider effort:${resolved.providerEffort}`);
+  console.log(`Selected tier:  ${resolved.selectedModel.tier}`);
+  console.log(`Tier escalated: ${resolved.tierEscalated ? "yes" : "no"}`);
   console.log(`Effort:         ${route.effort}`);
   console.log(`Scope:          ${route.scope}`);
   console.log(`Requires review:${route.requiresReview ? " yes" : " no"}`);
